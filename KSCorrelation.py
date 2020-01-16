@@ -12,110 +12,122 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sbn
+import matplotlib.cm as cm
+from Funciones_auxiliares import Mat_to_dataframe,see_teams,get_cluster_indexs,plot_branch
 from scipy import cluster
 import scipy as sp
-
+#################################
 '''Parameters'''
-
 alpha = 0.1
-path = '/run/media/lorenzo/My Passport/General'
-path = path + '/NoiseClusters.mat'
+path = '/run/media/lorenzo/My Passport/General/NoiseClusters.mat'
+path2 = '/run/media/lorenzo/My Passport/General/NoiseClusters2.mat'
+########################################
 
 plt.close('all')
 plt.clf()
 plt.close()
-
-'''Mat file to dataframe for working in python or from csv'''
+###############################
+'''Mat file to dataframe for working in python'''
 df = Mat_to_dataframe(path)
+df2 = Mat_to_dataframe(path2)
+df = pd.concat([df,df2],ignore_index = True,sort = False)
 
+df.bNoise = df.bNoise.apply(lambda row: row[0][0])
+df.bUnSure = df.bUnSure.apply(lambda row: row[0][0])
+#########################################################################
 '''Stadarization of the data'''
 df['Mean'] = df.Bulk.apply(lambda row:np.mean(row,axis = 0))
 df['Mean'] = (df['Mean'] - df.Mean.apply(lambda row:np.mean(row)))/df.Mean.apply(lambda row:np.std(row))
 
-
+'''Just Bad/good spikes (Comment both if you want to work with the entire dataframe)'''
+df = df[df.bNoise == 1]
+df = df.reset_index()
+df.drop(columns = 'index',inplace = True)
+#df = df[df.bNoise == 0]
 lenght = len(df.Mean)
-'''Initialization of Matrices'''
 
-Mean = []
+#######################################################################
+'''Initialization of Matrices'''
+Mean = []   
 for i in range(len(df.Mean)):
     Mean.append(df.Mean[i])
+    
 Correlation_ks = np.zeros((lenght,lenght))
 P_Value_ks = np.zeros((lenght,lenght))
 
 Correlation_p = np.zeros((lenght,lenght))
 P_Value_p = np.zeros((lenght,lenght))
 
-
-'''KS and Pearson tests'''
+########################################################################
+'''Pearson tests'''
 for i in range(lenght):
     for j in range(lenght):
-        Correlation_ks[i][j],P_Value_ks[i][j] = stats.ks_2samp(df.Mean[i],df.Mean[j])
         Correlation_p[i][j],P_Value_p[i][j] = stats.pearsonr(df.Mean[i],df.Mean[j])
-        
-        
+######################################################
 '''Threshold = sqrt(-0.5ln(alpha)*(m + n )/(m*n)'''
-threshold = np.sqrt(-np.log(alpha)/lenght) #m = n = lenght, For KS_test
-threshold2 = 0.25## For Pearson is defined as 1 - correlation
-
-
-#
-#sbn.clustermap(Correlation_ks,metric='euclidean',method = 'complete')
-#plt.figure(1)
-#linkage_ks = cluster.hierarchy.linkage(Correlation_ks,method = 'complete',metric = 'euclidean')
-#plt.figure(2)
-#Z_ks = cluster.hierarchy.dendrogram(linkage_ks,  color_threshold = threshold)
-
-
-sbn.clustermap(Correlation_p,metric='correlation',method = 'complete')
-plt.figure()
+threshold2 = 0.1## For Pearson is defined as 1 - correlation
+######################################################
+'''Plot matrix correlation clustered'''
+#sbn.clustermap(Correlation_p,metric='correlation',method = 'complete')
+plt.figure(2)
 linkage_p = cluster.hierarchy.linkage(Mean,method = 'complete',metric = 'correlation')
 #linkage_p = cluster.hierarchy.linkage(P_Value_p,method = 'complete',metric = 'euclidean')
 Z_p = cluster.hierarchy.dendrogram(linkage_p,color_threshold = threshold2)
-
-
 fl = cluster.hierarchy.fcluster(linkage_p,threshold2,criterion = 'distance')
-#fl = cluster.hierarchy.fcluster(linkage_ks,threshold,criterion = 'distance')
-
-
-
-
-def get_cluster_indexs(number,fl):
-    if isinstance(number,list):
-        indexes_list = []
-        for i in number:
-            indexes_list.append(np.where(fl == i)[0])
-        return indexes_list
-    else: return np.where(fl == number)[0]
-
-def plot_branch(cluster,fl,s_plot):
-    tup = get_cluster_indexs(cluster,fl)
-    spikes = df.Mean[tup]
-    for element in spikes:s_plot.plot(element)
-    return tup
-
-def Mat_to_dataframe(path):
-    Data = loadmat(path)
-    Data = Data['NoiseClusters']
-    Data = Data[0]
-    Column_names = Data.dtype.names
-    Dataframe = {}
-    for i in range(len(Column_names)):
-        Dataframe[Column_names[i]] = []
-    for i in range(len(Data)):
-        row = Data[i]
-        for j in range(len(row)):
-            column = row[j]
-            Dataframe[Column_names[j]].append(column)
-    Data = pd.DataFrame.from_dict(Dataframe)
-    return Data
-fig = plt.figure(10,figsize=(10,10))
-axes = fig.subplots(int(max(fl)/4),4)
+# =============================================================================
+'''We just need one member for each Team.'''
+s = []
+df['Team'] = 0
+for i in range(1,max(fl)+1):
+    tup = get_cluster_indexs(i,fl)
+    s.append(tup[0])
+    df['Team'][tup] = i
+# =============================================================================
+Important = df.iloc[s]
+########################################################
+'''Plot Teams'''
+fig = plt.figure(3,figsize=(10,10))
+axes = fig.subplots(int(max(fl)/4)+1,4)
 axes_flt = axes.flat
-for i in range(1,max(fl)):
-    plot_branch(i,fl,axes_flt[i-1])
+for i in range(1,max(fl)+1):
+    plot_branch(i,fl,axes_flt[i-1],df)
     axes_flt[i-1].title.set_text('Team {}'.format(i))
+#########################################################
+
+# =============================================================================
+# =============================================================================
+#'''Has every Team only good/bad spikeshapes???''' ###Depends on the threshold??
+#Mix_teams = []
+#print('There are mix teams??')
+#for team in np.arange(1,max(fl)+1):
+#    spikes_shapes = get_cluster_indexs(team,fl)
+#    aux = list(df.bNoise[spikes_shapes])
+#    aux2 = []
+#    for element in aux:
+#          aux2.append(element)
+#    if  (aux2.count(1) !=0) and (aux2.count(0)!=0):
+#        print('Yes, team {} is a mix team'.format(team))
+#        Mix_teams.append(team)
+#
+#'''Plot mixed teams'''
+#if not len(Mix_teams) ==0:
+#    fig = plt.figure(4)
+#    axes = fig.subplots(int(ceil(len(Mix_teams)/2)),2)
+#    for i in range(len(Mix_teams)):
+#        plot_branch(Mix_teams[i],fl,axes.flat[i],df,label=True)
+#        axes.flat[i].title.set_text('Team {}'.format(Mix_teams[i]))
+# =============================================================================
+# =============================================================================
+###################################################################################################3333
+
+        
+'''Plot mixed teams'''
+fig = plt.figure(4)
+axes = fig.subplots(int(ceil(len(Important)/4)),4)
+for i in range(len(Important)):
+     axes.flat[i].plot(Important.Mean.iloc[i])
+     axes.flat[i].title.set_text('Team {}'.format(Important.Team.iloc[i]))
+
+        
     
-
-
-
 
