@@ -74,5 +74,9 @@ def see_teams(lista_de_teams,fl):
         for element in speiksheipes:
             plt.plot(df.Mean[int(element)],c = colors[i])
             i+=1
+            
+def dataframe_to_math(path,df):
+    a = {name: col.values for name, col in df.items()}
+    sp.io.savemat(path,a)
         
         

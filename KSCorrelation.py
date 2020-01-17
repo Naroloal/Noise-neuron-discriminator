@@ -22,7 +22,6 @@ alpha = 0.1
 path = '/run/media/lorenzo/My Passport/General/NoiseClusters.mat'
 path2 = '/run/media/lorenzo/My Passport/General/NoiseClusters2.mat'
 ########################################
-
 plt.close('all')
 plt.clf()
 plt.close()
@@ -52,9 +51,6 @@ Mean = []
 for i in range(len(df.Mean)):
     Mean.append(df.Mean[i])
     
-Correlation_ks = np.zeros((lenght,lenght))
-P_Value_ks = np.zeros((lenght,lenght))
-
 Correlation_p = np.zeros((lenght,lenght))
 P_Value_p = np.zeros((lenght,lenght))
 
@@ -82,8 +78,8 @@ for i in range(1,max(fl)+1):
     tup = get_cluster_indexs(i,fl)
     s.append(tup[0])
     df['Team'][tup] = i
-# =============================================================================
 Important = df.iloc[s]
+# =============================================================================
 ########################################################
 '''Plot Teams'''
 fig = plt.figure(3,figsize=(10,10))
@@ -93,8 +89,20 @@ for i in range(1,max(fl)+1):
     plot_branch(i,fl,axes_flt[i-1],df)
     axes_flt[i-1].title.set_text('Team {}'.format(i))
 #########################################################
-
 # =============================================================================
+    '''Plot one spikeshape per team'''
+fig = plt.figure(4)
+axes = fig.subplots(int(ceil(len(Important)/4)),4)
+for i in range(len(Important)):
+     axes.flat[i].plot(Important.Mean.iloc[i])
+     axes.flat[i].title.set_text('Team {}'.format(Important.Team.iloc[i]))
+     
+'''Now we introduce the good spikeshapes'''
+df_good = df[df.bNoise == 0]
+
+gb = pd.concat([df_good,Important])
+
+
 # =============================================================================
 #'''Has every Team only good/bad spikeshapes???''' ###Depends on the threshold??
 #Mix_teams = []
@@ -118,16 +126,9 @@ for i in range(1,max(fl)+1):
 #        axes.flat[i].title.set_text('Team {}'.format(Mix_teams[i]))
 # =============================================================================
 # =============================================================================
-###################################################################################################3333
+###################################################################################################        
 
-        
-'''Plot mixed teams'''
-fig = plt.figure(4)
-axes = fig.subplots(int(ceil(len(Important)/4)),4)
-for i in range(len(Important)):
-     axes.flat[i].plot(Important.Mean.iloc[i])
-     axes.flat[i].title.set_text('Team {}'.format(Important.Team.iloc[i]))
 
-        
-    
+
+
 
