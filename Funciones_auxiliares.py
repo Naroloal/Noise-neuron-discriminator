@@ -55,6 +55,8 @@ def Mat_to_dataframe(path):
             column = row[j]
             Dataframe[Column_names[j]].append(column)
     Data = pd.DataFrame.from_dict(Dataframe)
+    Data = pd.DataFrame.from_dict(Data)
+
     return Data
 
 def see_teams(lista_de_teams,fl):
