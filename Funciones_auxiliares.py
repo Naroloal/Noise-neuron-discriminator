@@ -16,6 +16,8 @@ import seaborn as sbn
 import matplotlib.cm as cm
 from scipy import cluster
 import scipy as sp
+import itertools
+
 
 def get_cluster_indexs(number,fl):
     if isinstance(number,list):
@@ -79,4 +81,27 @@ def dataframe_to_math(path,df):
     a = {name: col.values for name, col in df.items()}
     sp.io.savemat(path,a)
         
+    
+def Search_candidates(i,spikes,fl,N_teams,Correlation_p,size,Good_candidates = False):
+    r = []
+    Not_good_candidate = []
+    for Candidates in itertools.combinations(spikes,r = size):
+            while not Good_candidates:
+                Good_candidates = True
+                for j in range(1,N_teams+1):
+                    if not j==i:
+                        other_spikes = get_cluster_indexs(j,fl)
+                        for k in range(len(other_spikes)):
+                            check = [Correlation_p[i][k] > 0.9 for q in Candidates]
+                            if not all(check):
+                                Good_candidates = False
+                                break
+                            if not Good_candidates:break
+                    
+                if Good_candidates: r.append([i,Candidates])         
+                else:
+                   print('No good candidates found for Team {}'.format(i))
+                   Good_candidates = True
+                   Not_good_candidate.append(i)
+    return [r,Not_good_candidate]
         
