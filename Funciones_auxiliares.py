@@ -7,14 +7,10 @@ Created on Thu Jan 16 07:44:12 2020
 """
 
 
-from scipy import stats
 from scipy.io import loadmat
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sbn
-import matplotlib.cm as cm
-from scipy import cluster
 import scipy as sp
 import itertools
 
@@ -106,4 +102,15 @@ def Search_candidates(i,spikes,fl,N_teams,Correlation_p,size,Good_candidates = F
                    Good_candidates = True
                    Not_good_candidate.append(i)
     return [r,Not_good_candidate]
+
+def print_inf(dataframe,i,show_bNoise_bUnsure = False):
+    Info = dataframe.iloc[i]
+    Data = []
+    Data.append(Info.PatientExperiment[0])
+    Data.append(Info.Channel[0][0])
+    Data.append(Info.Cluster[0][0])
+    if show_bNoise_bUnsure:
+        Data.append(Info.bNoise)
+        Data.append(Info.bUnSure)
+    return Data
         
