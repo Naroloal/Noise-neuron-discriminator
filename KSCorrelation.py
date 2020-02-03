@@ -36,7 +36,7 @@ df.bNoise = df.bNoise.apply(lambda row: row[0][0])
 df.bUnSure = df.bUnSure.apply(lambda row: row[0][0])
 #########################################################################
 '''Stadarization of the data'''
-df['Mean'] = df.Bulk.apply(lambda row:np.mean(row,axis = 0))
+    df['Mean'] = df.Bulk.apply(lambda row:np.mean(row,axis = 0))
 df['Mean'] = (df['Mean'] - df.Mean.apply(lambda row:np.mean(row)))/df.Mean.apply(lambda row:np.std(row))
 
 '''Just Bad/good spikes (Comment both if you want to work with the entire dataframe)'''
@@ -183,3 +183,7 @@ for i in range(1,max(fl)+1):
 #        axes.flat[1].title.set_text('Team {}'.format(Mix_teams[i]))
 #    i+=1
 ##
+
+
+
+

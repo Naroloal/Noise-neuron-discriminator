@@ -27,11 +27,14 @@ def plot_branch(cluster,fl,s_plot,df,label = False):
     tup = get_cluster_indexs(cluster,fl)
     spikes = df.Mean[tup]
     labels1 = list(df.bNoise[tup])
-    labels2 = list(df.bUnSure[tup])
+    try:
+        labels2 = list(df.bUnSure[tup])
+    except:pass
     i = 0
     for element in spikes:
         if label:
-            s_plot.plot(element,label = '{},{}'.format(labels1[i],labels2[i]))
+            try:s_plot.plot(element,label = '{},{}'.format(labels1[i],labels2[i]))
+            except:s_plot.plot(element,label = '{}'.format(labels1[i]))
             i+=1
             s_plot.legend()
         else:s_plot.plot(element)
@@ -113,4 +116,31 @@ def print_inf(dataframe,i,show_bNoise_bUnsure = False):
         Data.append(Info.bNoise)
         Data.append(Info.bUnSure)
     return Data
-        
+def plot_teams(df,fl,NUM_PLOTS_PER_FIG = 6):
+    num_figs = max(fl)//NUM_PLOTS_PER_FIG+1
+    Figures = [plt.figure(i) for i in range(num_figs)]
+    axes = []
+    for figure in Figures:
+        axes.append(figure.subplots(3,3).flat)
+        for j in range(1,max(fl)+1):
+            Fig_to_plot = j//NUM_PLOTS_PER_FIG
+            fig = axes[Fig_to_plot]
+            ax_to_plot = j%NUM_PLOTS_PER_FIG
+            subplot = fig[ax_to_plot]   
+            indexes = get_cluster_indexs(j,fl)
+            for i in indexes:
+                subplot.plot(df.Mean.iloc[i],label = '{}\n{}'.format(df.bNoise.iloc[i],df.Data.iloc[i]))
+                subplot.title.set_text('Team {}'.format(i))
+                subplot.legend()
+
+def find_mix(df,fl):
+    Mix_teams = []
+    for team in np.arange(1,max(fl)+1):
+        spikes_shapes = get_cluster_indexs(team,fl)
+        aux = list(df.bNoise[spikes_shapes])
+        aux2 = []
+        for element in aux:
+                aux2.append(element)
+                if  (aux2.count(1) !=0) and (aux2.count(0)!=0):
+                    Mix_teams.append(team)
+    return Mix_teams

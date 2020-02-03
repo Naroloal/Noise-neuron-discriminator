@@ -61,7 +61,7 @@ def extract_info(string):
 #######################################################
 "Indices sacados de Dataframes temporales NOS,NEU,NES,NOU. Obtenidos de mirar los plots usando Plots_stuff"
 Noise_sure_to_maybe = [80,81,85,100,101]
-Noise_unsure_to_maybe = [0,1,2,7,10,23,25,26,27,28,29,35,36,37,38,44,47,61,65,79,82,83]
+Noise_unsure_to_maybe = [0,1,2,7,10,23,25,26,27,28,29,31,35,36,37,38,44,47,61,65,79,82,83]
 Neuron_unsure_to_maybe = [19]
 Noise_Sure_eliminate= [89]
 Noise_Unsure_eliminate = [47,69,70,84,86,89]
@@ -85,9 +85,9 @@ Neuron_unsure.drop(labels = Neuron_unsure_to_maybe,inplace = True)
 
 
 NOISE = pd.concat([Noise_sure,Noise_unsure],ignore_index = True,sort = False)
-NOISE.drop(columns = ['bNoise','bUnSure','index'],inplace = True)
+NOISE.drop(columns = ['bUnSure','index'],inplace = True)
 NEURON = pd.concat([Neuron_sure,Neuron_unsure],ignore_index = True,sort = False)
-NEURON.drop(columns = ['bNoise','bUnSure','index'],inplace = True)
+NEURON.drop(columns = ['bUnSure','index'],inplace = True)
 
 pd.to_pickle(NOISE,'NOISE')
 pd.to_pickle(NEURON,'NEURON')
