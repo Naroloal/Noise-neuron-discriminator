@@ -25,7 +25,7 @@ import chart_studio.plotly as plotly
 
 plt.close('all')
 '''Mat file to dataframe for working in python'''
-NOISE = pd.read_pickle('NOISE')
+NOISE = pd.read_pickle('NOISE2')
 NEURON = pd.read_pickle('NEURON')
 NOISE_MAYBE = pd.read_pickle('Noise_Maybe')
 

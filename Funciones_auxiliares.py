@@ -144,3 +144,16 @@ def find_mix(df,fl):
                 if  (aux2.count(1) !=0) and (aux2.count(0)!=0):
                     Mix_teams.append(team)
     return Mix_teams
+        
+def plot_Bulk(Bulk,ax,label = ''):
+    for spike in Bulk:
+        ax.plot(spike,color = 'b',linewidth = 0.1)
+        
+def load_times_files(mat_filename):
+    timesfile = loadmat(mat_filename)
+    cluster_class = timesfile['cluster_class'].T
+    cluster = np.array(cluster_class[0],dtype = int)
+    time = cluster_class[1]
+    s = dict({'cluster':cluster,'time':time})
+    dataframe = pd.DataFrame(s)
+    return dataframe
