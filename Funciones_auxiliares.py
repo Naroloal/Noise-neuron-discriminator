@@ -149,11 +149,44 @@ def plot_Bulk(Bulk,ax,label = ''):
     for spike in Bulk:
         ax.plot(spike,color = 'b',linewidth = 0.1)
         
-def load_times_files(mat_filename):
-    timesfile = loadmat(mat_filename)
-    cluster_class = timesfile['cluster_class'].T
+def load_time_files(mat_filename):
+    timefile = loadmat(mat_filename)
+    cluster_class = timefile['cluster_class'].T
     cluster = np.array(cluster_class[0],dtype = int)
     time = cluster_class[1]
     s = dict({'cluster':cluster,'time':time})
     dataframe = pd.DataFrame(s)
     return dataframe
+
+def get_isi_from_timefiles(Input,PatientExperiment):
+    if isinstance(Input,list):
+        ISI_info = pd.DataFrame()
+        for timefile_name in Input:
+            channel = timefile_name[9:-4]
+            df = load_time_files(timefile_name)
+            df_grouped = df.groupby('cluster')
+            q = df_grouped.apply(np.diff)
+            q = q.apply(np.histogram,bins = 100,range = {0,100})
+            q = pd.DataFrame(q).T
+            q['Channel'] = channel
+            q['PatientExperiment'] = PatientExperiment
+            ISI_info = pd.concat([ISI_info,q],ignore_index = True)
+        ISI_info = ISI_info[['Channel','PatientExperiment'] + [c for c in ISI_info if c not in ['Channel','PatientExperiment']]]
+        return ISI_info
+    else:
+        channel = Input[9:-4]
+        df = load_time_files(Input)
+        df_grouped = df.groupby('cluster')
+        q = df_grouped.apply(np.diff)
+        q = q.apply(np.histogram,bins = 100,range = {0,100})
+        q = pd.DataFrame(q).T 
+        q['Channel'] = channel
+        q['PatientExperiment'] = PatientExperiment
+        q = q[['Channel','PatientExperiment'] + [c for c in q if c not in ['Channel','PatientExperiment']]]
+        return q
+            
+            
+            
+            
+            
+        
