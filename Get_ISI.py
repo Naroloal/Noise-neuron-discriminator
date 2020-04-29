@@ -14,9 +14,11 @@ import pandas as pd
 import numpy as np
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
+'''This script is designed to extract ISI_data from the times_files and store them in a df'''
 
+#We need to get the path to the data, there are several experiments, so we use a previous dataframe to get the names
+#of the sessions
 data = pd.read_pickle('Datos/Data_all_sessions')
-
 experiments_path= '/run/media/lorenzo/My Passport/Data/'
 experiment_list= data.PatientExperiment.unique()
 experiment_data_path_list = []
@@ -26,14 +28,15 @@ for experiment in experiment_list:
     experiment_data_path = experiments_path + experiment
     experiment_data_path_list.append(experiment_data_path)
 
+#We get the ISI and store them in a dataframe
 ISI_df = pd.DataFrame()
 for experiment in experiment_data_path_list:
     os.chdir(experiment)
-    aux = experiment.split('/')[-3:]
-    PatientExperiment = ','.join(aux)
-    Times_files_name_list = glob.glob('times_NSX*.mat')
-    df = get_isi_from_timefiles(Times_files_name_list,PatientExperiment)
-    ISI_df = pd.concat([ISI_df,df],ignore_index = True)
+    aux = experiment.split('/')[-3:] #PatientExperiment
+    PatientExperiment = ','.join(aux)#PatientExperiment
+    Times_files_name_list = glob.glob('times_NSX*.mat')# All the times_files names in a list
+    df = get_isi_from_timefiles(Times_files_name_list,PatientExperiment) #We get the ISI data from this experiment
+    ISI_df = pd.concat([ISI_df,df],ignore_index = True)# We add the df to the ISI_df
 
 
 
