@@ -40,9 +40,9 @@ def plot_branch(cluster,fl,s_plot,df,label = False):
         else:s_plot.plot(element)
     return tup
 
-def Mat_to_dataframe(path):
+def Mat_to_dataframe(path,data = 'NoiseClusters'):
     Data = loadmat(path)
-    Data = Data['NoiseClusters']
+    Data = Data[data]
     Data = Data[0]
     Column_names = Data.dtype.names
     Dataframe = {}

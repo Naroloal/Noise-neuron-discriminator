@@ -21,22 +21,18 @@ import math
 #################################
 '''Parameters'''
 alpha = 0.1
-path = '/run/media/lorenzo/My Passport/General/NoiseClusters.mat'
-path2 = '/run/media/lorenzo/My Passport/General/NoiseClusters2.mat'
 #########################################
 plt.close('all')
 plt.clf()
 plt.close()
 ##############################
-'''Mat file to dataframe for working in python'''
-df = Mat_to_dataframe(path)
-df2 = Mat_to_dataframe(path2)
-df = pd.concat([df,df2],ignore_index = True,sort = False)
-df.bNoise = df.bNoise.apply(lambda row: row[0][0])
-df.bUnSure = df.bUnSure.apply(lambda row: row[0][0])
+'''import the data'''
+df = pd.read_pickle('Datos/Data_all_sessions_cleaned')        
+df = df[df.PatientExperiment.str.contains('HEC032|HEC031|HEC030')]
+df.reset_index(inplace = True)
 #########################################################################
 '''Stadarization of the data'''
-    df['Mean'] = df.Bulk.apply(lambda row:np.mean(row,axis = 0))
+df['Mean'] = df.Bulk.apply(lambda row: np.mean(row,axis = 0))
 df['Mean'] = (df['Mean'] - df.Mean.apply(lambda row:np.mean(row)))/df.Mean.apply(lambda row:np.std(row))
 
 '''Just Bad/good spikes (Comment both if you want to work with the entire dataframe)'''
@@ -48,18 +44,13 @@ lenght = len(df.Mean)
 
 #######################################################################
 '''Initialization of Matrices'''
-Mean = []
-for i in range(len(df.Mean)):
-    Mean.append(df.Mean[i])
-
-Correlation_p = np.zeros((lenght,lenght))
-P_Value_p = np.zeros((lenght,lenght))
+Mean = pd.DataFrame(np.array(df.Mean.to_list())).values
 
 ########################################################################
-'''Pearson tests'''
-for i in range(lenght):
-    for j in range(lenght):
-        Correlation_p[i][j],P_Value_p[i][j] = stats.pearsonr(df.Mean[i],df.Mean[j])
+# '''Pearson tests'''
+# for i in range(lenght):
+#     for j in range(lenght):
+#         Correlation_p[i][j],P_Value_p[i][j] = stats.pearsonr(df.Mean[i],df.Mean[j])
 ######################################################
 '''Threshold = sqrt(-0.5ln(alpha)*(m + n )/(m*n)'''
 threshold2 = 0.1## For Pearson is defined as 1 - correlation
@@ -69,7 +60,7 @@ threshold2 = 0.1## For Pearson is defined as 1 - correlation
 plt.figure(2)
 linkage_p = cluster.hierarchy.linkage(Mean,method = 'complete',metric = 'correlation')
 #linkage_p = cluster.hierarchy.linkage(P_Value_p,method = 'complete',metric = 'euclidean')
-#   Z_p = cluster.hierarchy.dendrogram(linkage_p,color_threshold = threshold2)
+#Z_p = cluster.hierarchy.dendrogram(linkage_p,color_threshold = threshold2)
 fl = cluster.hierarchy.fcluster(linkage_p,threshold2,criterion = 'distance')
 #=============================================================================
  ########################################################
@@ -130,27 +121,27 @@ for i in range(1,max(fl)+1):
 ##
 #
 ## =============================================================================
-#'''Has every Team only good/bad spikeshapes???''' ###Depends on the threshold??
-#Mix_teams = []
-#print('There are mix teams??')
-#for team in np.arange(1,max(fl)+1):
-#    spikes_shapes = get_cluster_indexs(team,fl)
-#    aux = list(df.bNoise[spikes_shapes])
-#    aux2 = []
-#    for element in aux:
-#          aux2.append(element)
-#    if  (aux2.count(1) !=0) and (aux2.count(0)!=0):
-#        print('Yes, team {} is a mix team'.format(team))
-#        Mix_teams.append(team)
-#
-#'''Plot mixed teams'''
-#if not len(Mix_teams) ==0:
-#    fig = plt.figure(4)
-#    axes = fig.subplots(int(math.ceil(len(Mix_teams)/2)),2)
-#    for i in range(len(Mix_teams)):
-#        plot_branch(Mix_teams[i],fl,axes.flat[i],df,label=True)
-#        axes.flat[i].title.set_text('Team {}'.format(Mix_teams[i]))
-#        
+'''Has every Team only good/bad spikeshapes???''' ###Depends on the threshold??
+Mix_teams = []
+print('There are mix teams??')
+for team in np.arange(1,max(fl)+1):
+    spikes_shapes = get_cluster_indexs(team,fl)
+    aux = list(df.bNoise[spikes_shapes])
+    aux2 = []
+    for element in aux:
+          aux2.append(element)
+    if  (aux2.count(1) !=0) and (aux2.count(0)!=0):
+        print('Yes, team {} is a mix team'.format(team))
+        Mix_teams.append(team)
+#   
+'''Plot mixed teams'''
+if not len(Mix_teams) ==0:
+    fig = plt.figure(4)
+    axes = fig.subplots(int(math.ceil(len(Mix_teams)/2)),2)
+    for i in range(len(Mix_teams)):
+        plot_branch(Mix_teams[i],fl,axes.flat[i],df,label=True)
+        axes.flat[i].title.set_text('Team {}'.format(Mix_teams[i]))
+        
 #'''Plot mixed teams'''
 #if not len(Mix_teams) ==0:
 #    fig = plt.figure(4)
