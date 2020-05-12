@@ -165,9 +165,8 @@ def get_isi_from_timefiles(Input,PatientExperiment):
             channel = timefile_name[9:-4]
             df = load_time_files(timefile_name)
             df_grouped = df.groupby('cluster')
-            q = df_grouped.time.apply(np.diff)
-            q = q.apply(np.histogram,bins = 100,range = (0,100))
-            q = q.apply(lambda row: row[0])
+            q = df_grouped.apply(np.diff)
+            q = q.apply(np.histogram,bins = 100,range = {0,100})
             q = pd.DataFrame(q).T
             q['Channel'] = channel
             q['PatientExperiment'] = PatientExperiment
@@ -178,13 +177,12 @@ def get_isi_from_timefiles(Input,PatientExperiment):
         channel = Input[9:-4]
         df = load_time_files(Input)
         df_grouped = df.groupby('cluster')
-        q = df_grouped.time.apply(np.diff)
-        q = q.apply(np.histogram,bins = 100,range = (0,100))
-        q = q.apply(lambda row: row[0])
+        q = df_grouped.apply(np.diff)
+        q = q.apply(np.histogram,bins = 100,range = {0,100})
         q = pd.DataFrame(q).T 
         q['Channel'] = channel
         q['PatientExperiment'] = PatientExperiment
-        q = q[ ['Channel','PatientExperiment'] + [c for c in q if c not in ['Channel','PatientExperiment']]]
+        q = q[['Channel','PatientExperiment'] + [c for c in q if c not in ['Channel','PatientExperiment']]]
         return q
             
             

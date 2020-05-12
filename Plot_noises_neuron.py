@@ -13,22 +13,23 @@ import math as mt
 import numpy as np
 from Funciones_auxiliares import Mat_to_dataframe
 
-# a = pd.read_pickle('Data_all_sessions')
-a = Mat_to_dataframe('/run/media/lorenzo/My Passport/General/Noise_Clusters/NoiseClusters2.mat')
+a = pd.read_pickle('Datos/Data_all_sessions_cleaned2')
 
-names = {}
+#a = Mat_to_dataframe('/run/media/lorenzo/My Passport/General/Noise_Clusters/NoiseClusters2.mat')
 
-a.PatientExperiment = a.PatientExperiment.apply(lambda row:row[0])
-a.Cluster= a.Cluster.apply(lambda row:row[0][0])
-a.Channel= a.Channel.apply(lambda row:row[0][0])
-a.bUnSure= a.bUnSure.apply(lambda row:row[0][0])
-a.bNoise= a.bNoise.apply(lambda row:row[0][0])  
+# names = {}
+
+# a.PatientExperiment = a.PatientExperiment.apply(lambda row:row[0])
+# a.Cluster= a.Cluster.apply(lambda row:row[0][0])
+# a.Channel= a.Channel.apply(lambda row:row[0][0])
+# a.bUnSure= a.bUnSure.apply(lambda row:row[0][0])
+# a.bNoise= a.bNoise.apply(lambda row:row[0][0])  
 
 
-with open('names.txt','r') as f:
-    for line in f:
-        line = line.split(',')
-        names[line[0]] = line[1].strip()
+# with open('names.txt','r') as f:
+#     for line in f:
+#         line = line.split(',')
+#         names[line[0]] = line[1].strip()
 
 def extract_info(string):
     a = string[4:8]
@@ -41,15 +42,14 @@ def extract_info(string):
 # a['Data'] = a.apply(lambda row: names[row.PatientExperiment] +'_'+str(row.Channel)+'_'+str(row.Cluster),axis = 1)
 a['Data'] = a.apply(lambda row: extract_info((row.PatientExperiment)) +'_'+str(row.Channel)+'_'+str(row.Cluster),axis = 1)
 
-a['Mean_nn'] = a.Bulk.apply(lambda row:np.mean(row,axis = 0))
+# a['Mean_nn'] = a.Bulk.apply(lambda row:np.mean(row,axis = 0))
 
 plt.close('all')
+# Noise_Sure = a[(a.bNoise == 1)&(a.bUnSure == 0)]
+# Noise_UnSure = a[(a.bNoise == 1)&(a.bUnSure == 1)]
 
-Noise_Sure = a[(a.bNoise == 1)&(a.bUnSure == 0)]
-Noise_UnSure = a[(a.bNoise == 1)&(a.bUnSure == 1)]
-
-Neuron_Sure = a[(a.bNoise == 0)&(a.bUnSure == 0)]
-Neuron_UnSure = a[(a.bNoise == 0)&(a.bUnSure == 1)]
+# Neuron_Sure = a[(a.bNoise == 0)&(a.bUnSure == 0)]
+# Neuron_UnSure = a[(a.bNoise == 0)&(a.bUnSure == 1)]
 
 # len_NoS = len(Noise_sure)
 # len_NoU = len(Noise_unsure)
@@ -76,9 +76,9 @@ def plots_stuff(df,plot_cluster = False,save_name = ''):
         ax_to_plot = i%plots_per_fig
         subplot = fig[ax_to_plot]
         if plot_cluster:
-            for j in range(len(df.Bulk.iloc[i])):
-                subplot.plot(df.Bulk.iloc[i][j],'b',linewidth = 0.1)
-        subplot.plot(df.Mean_nn.iloc[i],'k',linewidth = 1,label = '{}'.format(df.Data.iloc[i]))
+                for j in range(len(df.Bulk.iloc[i])):
+                    subplot.plot(df.Bulk.iloc[i][j],'b',linewidth = 0.1)
+                subplot.plot(df.Mean.iloc[i],'k',linewidth = 1,label = '{}'.format(df.Data.iloc[i]))
         subplot.legend()
         if Fig_to_plot == ind_fig  + 1:
             Figures[ind_fig].savefig(save_name + str(ind_fig))
@@ -89,13 +89,24 @@ def plots_stuff(df,plot_cluster = False,save_name = ''):
     Figures[-1].savefig(save_name + str(ind_fig + 1))
     plt.close(str(ind_fig+1))
 
-plots_stuff(Noise_Sure,True,'Figuras/Noise_Sure2/')
+NEURON = a[a.bNoise == 0]
+NOISE = a[a.bNoise == 1]
+MU = a[a.bNoise == 2]
+
+
+plots_stuff(NEURON,True,'Figuras/NOISE_NEURON_MU/NEURON/')
 plt.close('all')
-plots_stuff(Neuron_UnSure,True,'Figuras/Neuron_UnSure2/')
+plots_stuff(NOISE,True,'Figuras/NOISE_NEURON_MU/NOISE/')
 plt.close('all')
-plots_stuff(Neuron_Sure,True,'Figuras/Neuron_Sure2/')
-plots_stuff(Noise_UnSure,True,'Figuras/Noise_UnSure2/')
-plt.close('all')
+plots_stuff(MU,True,'Figuras/NOISE_NEURON_MU/MU/')
+
+
+
+# plots_stuff(Neuron_UnSure,True,'Figuras/Neuron_UnSure2/')
+# plt.close('all')
+# plots_stuff(Neuron_Sure,True,'Figuras/Neuron_Sure2/')
+# plots_stuff(Noise_UnSure,True,'Figuras/Noise_UnSure2/')
+# plt.close('all')
 
 
 

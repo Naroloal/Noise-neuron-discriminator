@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 
 #We need to get the path to the data, there are several experiments, so we use a previous dataframe to get the names
 #of the sessions
-data = pd.read_pickle('Datos/Data_all_sessions')
+data = pd.read_pickle('Datos/Data_all_sessions_cleaned2')
 experiments_path= '/run/media/lorenzo/My Passport/Data/'
 experiment_list= data.PatientExperiment.unique()
 experiment_data_path_list = []
@@ -32,16 +32,20 @@ for experiment in experiment_list:
 ISI_df = pd.DataFrame()
 for experiment in experiment_data_path_list:
     os.chdir(experiment)
-    aux = experiment.split('/')[-3:] #PatientExperiment
-    PatientExperiment = ','.join(aux)#PatientExperiment
+    aux = experiment.split('/')[6:] #PatientExperiment
+    PatientExperiment = '\\'.join(aux)#PatientExperiment
     Times_files_name_list = glob.glob('times_NSX*.mat')# All the times_files names in a list
-    df = get_isi_from_timefiles(Times_files_name_list,PatientExperiment) #We get the ISI data from this experiment
-    ISI_df = pd.concat([ISI_df,df],ignore_index = True)# We add the df to the ISI_df
+    if len(Times_files_name_list) == 0: 
+        print(experiment,' no tiene Times_files')
+    else:
+        df = get_isi_from_timefiles(Times_files_name_list,PatientExperiment) #We get the ISI data from this experiment
+        ISI_df = pd.concat([ISI_df,df],ignore_index = True)# We add the df to the ISI_df
 
 
 
 # df = load_times_files('times_NSX2.mat')
 # classes = set(df.cluster)
+
 
 
 # plt.close('all')
