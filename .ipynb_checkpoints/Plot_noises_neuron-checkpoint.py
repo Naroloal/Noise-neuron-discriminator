@@ -13,23 +13,23 @@ import math as mt
 import numpy as np
 from Funciones_auxiliares import Mat_to_dataframe
 
-a = pd.read_pickle('Datos/Extra')
+a = pd.read_pickle('Datos/Data_all_sessions_cleaned2')
 
-#a = Mat_to_dataframe('/run/media/lorenzo/My Passport/General/NoiseClusters_extra.mat')
+#a = Mat_to_dataframe('/run/media/lorenzo/My Passport/General/Noise_Clusters/NoiseClusters2.mat')
 
-names = {}
+# names = {}
 
-#a.PatientExperiment = a.PatientExperiment.apply(lambda row:row[0])
+# a.PatientExperiment = a.PatientExperiment.apply(lambda row:row[0])
 # a.Cluster= a.Cluster.apply(lambda row:row[0][0])
 # a.Channel= a.Channel.apply(lambda row:row[0][0])
 # a.bUnSure= a.bUnSure.apply(lambda row:row[0][0])
 # a.bNoise= a.bNoise.apply(lambda row:row[0][0])  
 
 
-with open('names.txt','r') as f:
-    for line in f:
-        line = line.split(',')
-        names[line[0]] = line[1].strip()
+# with open('names.txt','r') as f:
+#     for line in f:
+#         line = line.split(',')
+#         names[line[0]] = line[1].strip()
 
 def extract_info(string):
     a = string[4:8]
@@ -39,10 +39,10 @@ def extract_info(string):
     else: info = a+ b[1]
     return info
 
-a['Data'] = a.apply(lambda row: names[row.PatientExperiment] +'_'+str(row.Channel)+'_'+str(row.Cluster),axis = 1)
-#a['Data'] = a.apply(lambda row: extract_info((row.PatientExperiment)) +'_'+str(row.Channel)+'_'+str(row.Cluster),axis = 1)
+# a['Data'] = a.apply(lambda row: names[row.PatientExperiment] +'_'+str(row.Channel)+'_'+str(row.Cluster),axis = 1)
+a['Data'] = a.apply(lambda row: extract_info((row.PatientExperiment)) +'_'+str(row.Channel)+'_'+str(row.Cluster),axis = 1)
 
-
+# a['Mean_nn'] = a.Bulk.apply(lambda row:np.mean(row,axis = 0))
 
 plt.close('all')
 # Noise_Sure = a[(a.bNoise == 1)&(a.bUnSure == 0)]
@@ -60,9 +60,6 @@ plt.close('all')
 plots_per_fig = 25
 
 def plots_stuff(df,plot_cluster = False,save_name = ''):
-    if not hasattr(df, 'Mean'): 
-        print('df has not Mean attribute.. computing it from Bulk')
-        df['Mean'] = df.Bulk.apply(lambda row:np.mean(row,axis = 0))
     num_figs = len(df)//25+1
     Figures = [plt.figure(i,figsize = (20,10)) for i in range(num_figs)]
     axes = []
@@ -92,27 +89,17 @@ def plots_stuff(df,plot_cluster = False,save_name = ''):
     Figures[-1].savefig(save_name + str(ind_fig + 1))
     plt.close(str(ind_fig+1))
 
-Neuron_sure = a[(a.bNoise == 0) & (a.bUnSure == 0)]
-Neuron_unsure = a[(a.bNoise == 0) & (a.bUnSure  == 1)]
+NEURON = a[a.bNoise == 0]
+NOISE = a[a.bNoise == 1]
+MU = a[a.bNoise == 2]
 
-Noise_sure = a[(a.bNoise == 1) & (a.bUnSure  == 0)]
-Noise_unsure = a[(a.bNoise == 1) & (a.bUnSure  == 1)]
 
-Mu_sure = a[(a.bNoise == 2) & (a.bUnSure  == 0)]
-Mu_unsure = a[(a.bNoise == 2) & (a.bUnSure  == 1)]
+plots_stuff(NEURON,True,'Figuras/NOISE_NEURON_MU/NEURON/')
+plt.close('all')
+plots_stuff(NOISE,True,'Figuras/NOISE_NEURON_MU/NOISE/')
+plt.close('all')
+plots_stuff(MU,True,'Figuras/NOISE_NEURON_MU/MU/')
 
-plots_stuff(Neuron_sure,True,'Figuras/NOISE_NEURON_MU/NEURON_sure/')
-plt.close('all')
-plots_stuff(Neuron_unsure,True,'Figuras/NOISE_NEURON_MU/NEURON_unsure/')
-plt.close('all')
-plots_stuff(Noise_sure,True,'Figuras/NOISE_NEURON_MU/NOISE_sure/')
-plt.close('all')
-plots_stuff(Noise_unsure,True,'Figuras/NOISE_NEURON_MU/NOISE_unsure/')
-plt.close('all')
-plots_stuff(Mu_sure,True,'Figuras/NOISE_NEURON_MU/MU_sure/')
-plt.close('all')
-plots_stuff(Mu_unsure,True,'Figuras/NOISE_NEURON_MU/MU_unsure')
-plt.close('all')
 
 
 # plots_stuff(Neuron_UnSure,True,'Figuras/Neuron_UnSure2/')
