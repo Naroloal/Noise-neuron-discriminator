@@ -28,3 +28,4 @@ HEC030/HEC030_rsvpscr3/,030rsvpcr3
 HEC030/HEC030_rsvpscr8/,030rsvpcr8
 HEC030/HEC030_rsvpscr9/,030rsvpcr9
 HEC030/HEC030_story1/,030story1
+HEC031\HEC031_rsvpscr1,031rsvpcr1

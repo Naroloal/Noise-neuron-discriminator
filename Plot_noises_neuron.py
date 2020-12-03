@@ -13,7 +13,7 @@ import math as mt
 import numpy as np
 from Funciones_auxiliares import Mat_to_dataframe
 
-a = pd.read_pickle('Datos/Extra')
+a = pd.read_pickle('Datos/PCCIBNM')
 
 #a = Mat_to_dataframe('/run/media/lorenzo/My Passport/General/NoiseClusters_extra.mat')
 
@@ -79,7 +79,7 @@ def plots_stuff(df,plot_cluster = False,save_name = ''):
         ax_to_plot = i%plots_per_fig
         subplot = fig[ax_to_plot]
         if plot_cluster:
-                for j in range(len(df.Bulk.iloc[i])):
+                for j in range(min(len(df.Bulk.iloc[i]),5000)):
                     subplot.plot(df.Bulk.iloc[i][j],'b',linewidth = 0.1)
                 subplot.plot(df.Mean.iloc[i],'k',linewidth = 1,label = '{}'.format(df.Data.iloc[i]))
         subplot.legend()
@@ -92,26 +92,26 @@ def plots_stuff(df,plot_cluster = False,save_name = ''):
     Figures[-1].savefig(save_name + str(ind_fig + 1))
     plt.close(str(ind_fig+1))
 
-Neuron_sure = a[(a.bNoise == 0) & (a.bUnSure == 0)]
-Neuron_unsure = a[(a.bNoise == 0) & (a.bUnSure  == 1)]
+# Neuron_sure = a[(a.bNoise == 0) & (a.bUnSure == 0)]
+# Neuron_unsure = a[(a.bNoise == 0) & (a.bUnSure  == 1)]
 
-Noise_sure = a[(a.bNoise == 1) & (a.bUnSure  == 0)]
-Noise_unsure = a[(a.bNoise == 1) & (a.bUnSure  == 1)]
+# Noise_sure = a[(a.bNoise == 1) & (a.bUnSure  == 0)]
+# Noise_unsure = a[(a.bNoise == 1) & (a.bUnSure  == 1)]
 
-Mu_sure = a[(a.bNoise == 2) & (a.bUnSure  == 0)]
-Mu_unsure = a[(a.bNoise == 2) & (a.bUnSure  == 1)]
+# Mu_sure = a[(a.bNoise == 2) & (a.bUnSure  == 0)]
+# Mu_unsure = a[(a.bNoise == 2) & (a.bUnSure  == 1)]
 
-plots_stuff(Neuron_sure,True,'Figuras/NOISE_NEURON_MU/NEURON_sure/')
+
+
+Neuron = a[(a.bNoise == 0)]
+Mu = a[(a.bNoise == 2)]
+Noise = a[(a.bNoise == 1)]
+
+plots_stuff(Neuron,True,'Figuras/ALL_PLOTS/NEURON/')
 plt.close('all')
-plots_stuff(Neuron_unsure,True,'Figuras/NOISE_NEURON_MU/NEURON_unsure/')
+plots_stuff(Noise,True,'Figuras/ALL_PLOTS/NOISE/')
 plt.close('all')
-plots_stuff(Noise_sure,True,'Figuras/NOISE_NEURON_MU/NOISE_sure/')
-plt.close('all')
-plots_stuff(Noise_unsure,True,'Figuras/NOISE_NEURON_MU/NOISE_unsure/')
-plt.close('all')
-plots_stuff(Mu_sure,True,'Figuras/NOISE_NEURON_MU/MU_sure/')
-plt.close('all')
-plots_stuff(Mu_unsure,True,'Figuras/NOISE_NEURON_MU/MU_unsure')
+plots_stuff(Mu,True,'Figuras/ALL_PLOTS/MU/')
 plt.close('all')
 
 
